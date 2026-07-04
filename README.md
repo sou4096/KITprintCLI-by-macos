@@ -1,2 +1,102 @@
-# KITprintCLI-by-macos
-KITの学内プリンターにmacOSで印刷指示を出すためのCLIです。
+# KIT Print CLI
+
+macOSから金沢工業大学学内プリンターへ、PDFまたはPostScriptを直接送信するCLIツールです。また、このツールはベータ版のため、今後仕様が変わる可能性が高いです。詳細はこのREADMEや今後追加予定のリリースノートを確認してください。現時点では、PDFまたはPostScriptファイルの送信を主な対象としており、白黒印刷、両面印刷、部数指定、Wordからの直接印刷などは今後の対応予定です。
+
+## 概要
+
+このツールは、PDFをPostScriptに変換し、HTTP Basic認証付きのIPP 1.0 Print-Jobとして `iogate3.kanazawa-it.ac.jp` に送信します。
+
+## 対応環境
+
+- macOS
+- Python 3.9以上推奨
+- 学内ネットワークまたはVPN接続
+
+## インストール
+
+ダウンロードしたkitprintのフォルダをユーザー直下に移動してください。その後、以下のコマンドを実行します。
+```bash
+cd ~/kitprint
+./install.sh
+source ~/.zprofile
+```
+
+インストールが完了したら、次のコマンドで kitprint が使用できる状態になっているか確認してください。
+
+```bash
+which kitprint
+```
+
+## 初期設定
+初回のみ以下の情報を入力して、ユーザー情報を保存してください。
+まず、以下のコマンドを実行します。
+```bash
+kitprint --setup
+```
+
+ユーザー名は以下の形式になります。
+```bash
+<入学年度><学籍番号>@kit-ad01.kanazawa-it.ac.jp
+```
+
+入学年度2024年、学籍番号が1234567の場合
+```
+例：
+20241234567@kit-ad01.kanazawa-it.ac.jp
+```
+
+## 使い方
+
+印刷したいPDFファイルまたはPostScriptファイルのパスを指定して実行します。
+
+```bash
+kitprint /path/to/file.pdf
+```
+
+例として、デスクトップにある `sample.pdf` を印刷する場合は、以下のように実行します。
+
+```bash
+kitprint ~/Desktop/sample.pdf
+```
+
+実行するとパスワードの入力を求められます。入力しても表示されませんが、入力はされているので安心してください。
+
+```text
+KIT password:
+```
+
+パスワードはKITのAD認証パスワードを入力します。初期パスワードの場合は、以下の形式です。
+hYYMMDD
+例として、平成18年4月22日生まれの場合は以下のようになります。
+h180422
+パスワードを入力して送信に成功すると、以下のようなメッセージが表示されます。
+
+```text
+HTTP 200 OK
+IPP version: 1.0
+IPP status: 0x0000
+送信成功: プリンターで学生証をかざしてジョブを確認してください。
+```
+
+現在のフォルダ(カレントディレクトリ)にあるファイルを印刷する場合は、ファイル名だけでも指定できます。
+
+```bash
+kitprint sample.pdf
+```
+
+ジョブ名を指定したい場合は、`-n` オプションを使用します。
+
+```bash
+kitprint ~/Desktop/sample.pdf -n "report"
+```
+
+一時的に別のユーザー名を指定したい場合は、`-u` オプションを使用します。
+
+```bash
+kitprint ~/Desktop/sample.pdf -u "2024xxxxxxx@kit-ad01.kanazawa-it.ac.jp"
+```
+## 注意事項
+- このツールの使用には、windowsと同じように学内ネットワーク、またはVPNの接続が必要です。
+- PDFによっては、レイアウトや用紙サイズの影響で印刷結果が崩れる場合があります。
+- WordやPowerPointのファイルを直接送信することはできません。PDFに書き出してから使用してください。
+- 現段階では、カラー、片面印刷しか対応していません。

@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# local/test files
+sample.pdf
+sample.ps
+*.backup
+*_backup.py
+
+# credentials/config
+.config/
+config.json
