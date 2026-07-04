@@ -2,6 +2,12 @@
 
 macOSから金沢工業大学学内プリンターへ、PDFまたはPostScriptを直接送信するCLIツールです。また、このツールはベータ版のため、今後仕様が変わる可能性が高いです。詳細はこのREADMEや今後追加予定のリリースノートを確認してください。現時点では、PDFまたはPostScriptファイルの送信を主な対象としており、白黒印刷、両面印刷、部数指定、Wordからの直接印刷などは今後の対応予定です。
 
+## 現在のバージョン
+
+現在の最新版は `v0.1.0-beta` です。
+
+このバージョンでは、PDFまたはPostScriptファイルをmacOSからKIT学内プリンターへ送信できます。
+
 ## 概要
 
 このツールは、PDFをPostScriptに変換し、HTTP Basic認証付きのIPP 1.0 Print-Jobとして `iogate3.kanazawa-it.ac.jp` に送信します。
