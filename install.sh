@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_DIR="$HOME/kitprint"
+APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 BIN_DIR="$HOME/bin"
 CONFIG_DIR="$HOME/.config/kitprint"
 
