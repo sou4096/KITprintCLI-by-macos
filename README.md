@@ -189,3 +189,4 @@ rm -rf ~/.config/kitprint
 ```bash
 rm -rf ~/kitprint
 ```
+
