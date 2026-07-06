@@ -23,9 +23,7 @@ CONFIG_PATH = os.path.join(CONFIG_DIR, "config.json")
 
 @dataclass
 class PrintOptions:
-    color_mode: Optional[str] = None
     sides: Optional[str] = None
-    copies: int = 1
 
 
 def load_config() -> dict:
@@ -249,21 +247,10 @@ def send_print_job(ps_path: str, user: str, password: str, job_name: str, option
 
 
 def build_print_options(args) -> PrintOptions:
-    if args.mono and args.color:
-        raise ValueError("--mono と --color は同時に指定できません")
-
     if args.duplex and args.simplex:
         raise ValueError("--duplex と --simplex は同時に指定できません")
 
-    if args.copies < 1:
-        raise ValueError("--copies は1以上を指定してください")
-
     options = PrintOptions()
-
-    if args.mono:
-        options.color_mode = "monochrome"
-    elif args.color:
-        options.color_mode = "color"
 
     if args.simplex:
         options.sides = "one-sided"
@@ -271,8 +258,6 @@ def build_print_options(args) -> PrintOptions:
         options.sides = "two-sided-long-edge"
     elif args.duplex == "short":
         options.sides = "two-sided-short-edge"
-
-    options.copies = args.copies
 
     return options
 
@@ -285,8 +270,6 @@ def main() -> None:
     parser.add_argument("-u", "--user", help="KIT ADユーザー名")
     parser.add_argument("-n", "--name", help="ジョブ名")
     parser.add_argument("--setup", action="store_true", help="ユーザー設定を作成・更新する")
-    parser.add_argument("--mono", action="store_true", help="白黒/グレースケールで印刷")
-    parser.add_argument("--color", action="store_true", help="カラーで印刷")
 
     parser.add_argument(
         "--duplex",
@@ -297,7 +280,6 @@ def main() -> None:
     )
 
     parser.add_argument("--simplex", action="store_true", help="片面印刷")
-    parser.add_argument("--copies", type=int, default=1, help="部数")
 
     args = parser.parse_args()
 
