@@ -120,6 +120,35 @@ def convert_pdf_to_ps(pdf_path: str, ps_path: str) -> None:
         sys.exit(1)
 
 
+def convert_pdf_to_gray_ps(pdf_path: str, ps_path: str) -> None:
+    gs = shutil.which("gs")
+    if not gs:
+        print("--mono を使うには Ghostscript が必要です。", file=sys.stderr)
+        print("Install: brew install ghostscript", file=sys.stderr)
+        sys.exit(2)
+
+    cmd = [
+        gs,
+        "-q",
+        "-dSAFER",
+        "-dBATCH",
+        "-dNOPAUSE",
+        "-sDEVICE=ps2write",
+        "-sColorConversionStrategy=Gray",
+        "-dProcessColorModel=/DeviceGray",
+        "-dCompatibilityLevel=1.4",
+        f"-sOutputFile={ps_path}",
+        pdf_path,
+    ]
+
+    result = subprocess.run(cmd, stderr=subprocess.PIPE)
+
+    if result.returncode != 0:
+        print("PDFのグレースケール変換に失敗しました。", file=sys.stderr)
+        print(result.stderr.decode("utf-8", errors="replace"), file=sys.stderr)
+        sys.exit(1)
+
+
 def apply_postscript_options(ps_path: str, options: PrintOptions) -> None:
     device_lines = []
 
@@ -270,7 +299,8 @@ def main() -> None:
     parser.add_argument("-u", "--user", help="KIT ADユーザー名")
     parser.add_argument("-n", "--name", help="ジョブ名")
     parser.add_argument("--setup", action="store_true", help="ユーザー設定を作成・更新する")
-
+    parser.add_argument("-m", "--mono", action="store_true", help="pdfをグレースケールで印刷")
+    parser.add_argument("--color", action="store_true", help="カラーで印刷")
     parser.add_argument(
         "--duplex",
         nargs="?",
@@ -320,6 +350,10 @@ def main() -> None:
     lower = input_path.lower()
 
     if lower.endswith(".ps"):
+        if args.mono:
+            print("--mono は現在 .pdf 入力のみ対応しています。", file=sys.stderr)
+            sys.exit(2)
+
         with tempfile.TemporaryDirectory() as tmpdir:
             ps_path = os.path.join(tmpdir, "input.ps")
             shutil.copyfile(input_path, ps_path)
@@ -329,8 +363,14 @@ def main() -> None:
     elif lower.endswith(".pdf"):
         with tempfile.TemporaryDirectory() as tmpdir:
             ps_path = os.path.join(tmpdir, "output.ps")
-            print("PDFをPostScriptに変換中...")
-            convert_pdf_to_ps(input_path, ps_path)
+
+            if args.mono:
+                print("PDFをグレースケールPostScriptに変換中...")
+                convert_pdf_to_gray_ps(input_path, ps_path)
+            else:
+                print("PDFをPostScriptに変換中...")
+                convert_pdf_to_ps(input_path, ps_path)
+
             apply_postscript_options(ps_path, options)
             print("変換完了。送信中...")
             send_print_job(ps_path, user, password, job_name, options)
