@@ -1,26 +1,33 @@
-## v0.2.0
+## v0.3.0
 
 ### Added
 
-- 両面印刷に対応しました。
-  - `--duplex`: 長辺とじの両面印刷
-  - `--duplex long`: 長辺とじの両面印刷を明示
-  - `--duplex short`: 短辺とじの両面印刷
-  - `--simplex`: 片面印刷を明示
+- `--mono` / `-m` オプションを追加
+  - PDFをグレースケールPostScriptへ変換してから送信できます
+  - Ghostscriptを使用します
+- 白黒印刷に関する既知制限をREADMEに追加
 
 ### Changed
 
-- PDFをPostScriptへ変換した後、必要に応じてPostScript内へ印刷設定を挿入するようにしました。
-- 両面印刷の指定には、PostScriptの `setpagedevice` を利用します。
+- READMEの使用方法とオプション説明を更新
+- 白黒印刷の扱いを「対応済み」ではなく「グレースケール変換送信」として明確化
 
-### Known Issues
+### Known limitations
 
-- 白黒印刷は未対応です。
-  - Windows側では `PageOutputColor = Monochrome` の指定が確認できています。
-  - macOSからの直接IPP/PostScript送信で同等の指定を安定して反映する方式は未確定です。
-- 部数指定は未対応です。
-- GUIは未対応です。
+- `--mono` はプリンター側の白黒ジョブ判定や白黒課金を保証しません
+- 現在の学内プリンター環境では、グレースケール化したジョブもカラーとして認識されます
+- Windows公式ドライバーではRicoh RPCS形式のジョブが送信されており、白黒判定もRPCSデータに依存している可能性があります
+- macOS上で完結する現在の実装では、白黒課金・白黒ジョブ化は未対応です
 
 ### Notes
 
-このリリースは、GUI作成前にCLI側の印刷オプションを整理するための更新です。
+このリリースでは、白黒印刷対応に向けた検証として以下を確認しました。
+
+- IPP属性 `print-color-mode=monochrome`
+- PJL `DATAMODE=GRAYSCALE`
+- PostScript / Ghostscriptによるグレースケール変換
+- PDF直接送信
+- PCL XL monochrome送信
+
+これらの方式では、プリンター側で白黒ジョブとして認識されませんでした。  
+そのため、v0.3.0では白黒印刷対応ではなく、実験的なグレースケール変換送信機能として提供します。
